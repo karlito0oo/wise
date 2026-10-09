@@ -5,7 +5,10 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createContentStore } from '../server/models/contentStore.js';
-import mockCmsData from '../src/data/mockCmsData.js';
+import originalCmsData from '../src/data/mockCmsData.js';
+import { upgradeContent } from '../shared/content.js';
+import { contentSchema } from '../server/config/contentSchema.js';
+const mockCmsData = upgradeContent(originalCmsData);
 
 test('SQLite seeds once, persists saves across reopen, and preserves the public contract', t => {
   const directory = mkdtempSync(join(tmpdir(), 'wise-store-'));
@@ -30,4 +33,28 @@ test('SQLite rejects a stale update without altering the winning document', t =>
   assert.throws(() => store.save({ broken: true }, 1), error => error.status === 409);
   assert.deepEqual(store.read(), mockCmsData);
   assert.equal(store.readWithVersion().version, 2);
+});
+
+test('legacy migration preserves edited content and accepts repeatable collections', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'wise-migration-'));
+  const databasePath = join(directory, 'content.sqlite');
+  let store = createContentStore({ databasePath, seed: originalCmsData });
+  t.after(() => { store.close(); rmSync(directory, { recursive: true, force: true }); });
+  const legacy = structuredClone(originalCmsData);
+  legacy.about.title = 'Previously edited title';
+  store.database.prepare('UPDATE site_content SET document = ?').run(JSON.stringify(legacy));
+  store.close();
+  store = createContentStore({ databasePath });
+  const upgraded = store.read();
+  assert.equal(store.readWithVersion().version, 2);
+  assert.equal(upgraded.about.title, legacy.about.title);
+  assert.equal(upgraded.previewToolbar, undefined);
+  upgraded.ecosystem.partners.push({ ...upgraded.ecosystem.partners[0], id: 'additional-partner' });
+  upgraded.leadership.members.pop();
+  upgraded.implementation.steps.push({ id: 'new-step', title: 'New Step' });
+  upgraded.services.items = [];
+  upgraded.services.defaultTabId = '';
+  assert.equal(contentSchema.safeParse(upgraded).success, true);
+  upgraded.ecosystem.partners[0].id = 'additional-partner';
+  assert.equal(contentSchema.safeParse(upgraded).success, false);
 });

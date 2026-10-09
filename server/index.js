@@ -13,7 +13,7 @@ server.on('error', error => {
 
 /** Closes open connections on termination without leaving the process running indefinitely. */
 function shutdown() {
-  server.close(error => { app.locals.contentStore.close(); process.exitCode = error ? 1 : 0; });
+  server.close(error => { app.locals.contactMailer.close(); app.locals.contentStore.close(); process.exitCode = error ? 1 : 0; });
   server.closeIdleConnections();
   setTimeout(() => server.closeAllConnections(), 5000).unref();
 }

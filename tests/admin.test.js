@@ -5,7 +5,9 @@ import request from 'supertest';
 import { randomBytes } from 'node:crypto';
 import { createApp } from '../server/app.js';
 import { createContentStore } from '../server/models/contentStore.js';
-import mockCmsData from '../src/data/mockCmsData.js';
+import originalCmsData from '../src/data/mockCmsData.js';
+import { upgradeContent } from '../shared/content.js';
+const mockCmsData = upgradeContent(originalCmsData);
 
 const origin = 'http://127.0.0.1:5173';
 

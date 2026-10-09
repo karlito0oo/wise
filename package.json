@@ -7,6 +7,8 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "predev": "node scripts/prepare-assets.js",
+    "prebuild": "node scripts/prepare-assets.js",
     "dev": "concurrently -k -n api,web \"npm:dev:api\" \"npm:dev:web\"",
     "dev:api": "node --watch server/index.js",
     "dev:web": "vite --host 127.0.0.1 --port 5173 --strictPort",
@@ -15,7 +17,7 @@
     "test": "node --test",
     "admin:create": "node scripts/create-admin.js",
     "content:export": "node scripts/export-content.js",
-    "check": "eslint src server tests scripts vite.config.js tailwind.config.js postcss.config.js"
+    "check": "eslint src server shared tests scripts vite.config.js tailwind.config.js postcss.config.js"
   },
   "dependencies": {
     "@fontsource/plus-jakarta-sans": "^5.3.0",
@@ -27,8 +29,11 @@
     "express": "^5.3.0",
     "express-rate-limit": "^8.7.1",
     "helmet": "^8.3.0",
+    "multer": "^2.4.0",
+    "nodemailer": "^10.0.16",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
+    "sharp": "^0.35.5",
     "zod": "^4.6.5"
   },
   "devDependencies": {

@@ -3,10 +3,11 @@ const baseUrl = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
 
 /** Sends authenticated requests with a CSRF header; session cookies remain HTTP-only. */
 export async function adminRequest(path, { method = 'GET', body, csrfToken, signal } = {}) {
+  const multipart = body instanceof FormData;
   const response = await fetch(`${baseUrl}/admin${path}`, {
     method, credentials: 'include', cache: 'no-store', signal: signal || AbortSignal.timeout(15000),
-    headers: { Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json' } : {}), ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}) },
-    ...(body ? { body: JSON.stringify(body) } : {}),
+    headers: { Accept: 'application/json', ...(body && !multipart ? { 'Content-Type': 'application/json' } : {}), ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}) },
+    ...(body ? { body: multipart ? body : JSON.stringify(body) } : {}),
   });
   if (response.status === 204) return null;
   const data = await response.json();

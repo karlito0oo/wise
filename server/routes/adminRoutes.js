@@ -3,6 +3,17 @@ import { Router } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import { getEditableContent, getSession, login, logout, updateContent } from '../controllers/adminController.js';
 import { requireAdmin, requireCsrf, requireOrigin } from '../middleware/adminAuth.js';
+import multer from 'multer';
+import { uploadImages } from '../controllers/mediaController.js';
+
+const imageUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024, files: 8, fields: 0, parts: 8 },
+  /** Rejects unsupported declared types before raster decoding verifies actual bytes. */
+  fileFilter(request, file, callback) {
+    if (['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype)) return callback(null, true);
+    const error = new Error('Only JPEG, PNG, and WebP images are supported.');
+    error.status = 400; error.code = 'INVALID_IMAGE'; callback(error);
+  },
+});
 
 export const adminRoutes = Router();
 adminRoutes.use((request, response, next) => { response.set('Cache-Control', 'no-store'); next(); });
@@ -15,4 +26,5 @@ adminRoutes.use(requireAdmin);
 adminRoutes.get('/session', getSession);
 adminRoutes.get('/content', getEditableContent);
 adminRoutes.put('/content', requireOrigin, requireCsrf, updateContent);
+adminRoutes.post('/uploads', requireOrigin, requireCsrf, rateLimit({ windowMs: 60_000, limit: 10, standardHeaders: 'draft-8', legacyHeaders: false, message: { error: { code: 'RATE_LIMITED', message: 'Too many uploads. Try again shortly.' } } }), imageUpload.array('images', 8), uploadImages);
 adminRoutes.post('/logout', requireOrigin, requireCsrf, logout);

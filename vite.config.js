@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     server: {
-      proxy: { '/api': env.API_PROXY_TARGET || 'http://127.0.0.1:3001' },
+      proxy: { '/api': env.API_PROXY_TARGET || 'http://127.0.0.1:3001', '/uploads': env.API_PROXY_TARGET || 'http://127.0.0.1:3001' },
     },
   };
 });

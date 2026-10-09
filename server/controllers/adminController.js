@@ -28,6 +28,7 @@ export async function getEditableContent(request, response) { response.json(awai
 export async function updateContent(request, response) {
   const parsed = updateSchema.safeParse(request.body);
   if (!parsed.success) return response.status(400).json({ error: { code: 'INVALID_CONTENT', message: 'Content is invalid. Check links, numeric ranges, and required fields.', fields: parsed.error.issues.map(issue => issue.path.join('.')).slice(0, 20) } });
+  if (!request.app.locals.mediaStore.validReferences(parsed.data.content)) return response.status(400).json({ error: { code: 'INVALID_MEDIA', message: 'An image is missing. Upload it again before publishing.' } });
   try { response.json(await request.app.locals.contentStore.save(parsed.data.content, parsed.data.version)); }
   catch (error) {
     if (error.status === 409) return response.status(409).json({ error: { code: 'CONFLICT', message: 'Another edit was published. Reload content before saving.' } });

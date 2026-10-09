@@ -11,14 +11,19 @@ import { contentRoutes } from './routes/contentRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { createAdminStore } from './models/adminStore.js';
 import { adminRoutes } from './routes/adminRoutes.js';
+import { createMediaStore } from './models/mediaStore.js';
+import { createContactMailer } from './models/contactMailer.js';
+import { createContactRoutes } from './routes/contactRoutes.js';
 
 /** Builds an injectable public API and authenticated, CSRF-protected admin API. */
-export function createApp({ contentStore = createContentStore(), adminStore, logger = console } = {}) {
+export function createApp({ contentStore = createContentStore(), adminStore, mediaStore = createMediaStore(), contactMailer = createContactMailer(), logger = console } = {}) {
   const app = express();
   app.disable('x-powered-by');
   app.locals.contentStore = contentStore;
   app.locals.adminStore = adminStore || (contentStore.database ? createAdminStore(contentStore.database) : null);
   app.locals.logger = logger;
+  app.locals.mediaStore = mediaStore;
+  app.locals.contactMailer = contactMailer;
   app.use(helmet({
     contentSecurityPolicy: {
       directives: { 'script-src': ["'self'"], 'style-src': ["'self'"], 'font-src': ["'self'"], 'upgrade-insecure-requests': config.production ? [] : null },
@@ -45,10 +50,15 @@ export function createApp({ contentStore = createContentStore(), adminStore, log
     message: { error: { code: 'RATE_LIMITED', message: 'Too many requests. Try again shortly.' } },
   }));
   app.use('/api/admin', express.json({ limit: '256kb', strict: true }), adminRoutes);
+  app.use('/api/contact', createContactRoutes());
   app.use('/api', contentRoutes);
   app.use('/api', (request, response) => {
     response.status(404).json({ error: { code: 'NOT_FOUND', message: 'API endpoint not found.' } });
   });
+  app.use('/uploads', express.static(mediaStore.directory, { maxAge: '1y', immutable: true, index: false, dotfiles: 'deny',
+    /** Serves only re-encoded WebP images, never arbitrary user-controlled file types. */
+    setHeaders(response) { response.set('Content-Type', 'image/webp'); },
+  }));
   const dist = fileURLToPath(new URL('../dist/', import.meta.url));
   if (existsSync(dist)) {
     app.get(['/admin', '/admin/'], (request, response) => response.set('Cache-Control', 'no-store').sendFile(`${dist}index.html`));

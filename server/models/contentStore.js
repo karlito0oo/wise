@@ -3,6 +3,7 @@ import Database from 'better-sqlite3';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { upgradeContent } from '../../shared/content.js';
 
 export const defaultDatabasePath = resolve(process.env.SQLITE_PATH || fileURLToPath(new URL('../data/wise.sqlite', import.meta.url)));
 
@@ -34,8 +35,14 @@ export function createContentStore({ databasePath = defaultDatabasePath, seed } 
   if (!database.prepare('SELECT id FROM site_content WHERE id = 1').get()) {
     const initial = seed || JSON.parse(readFileSync(new URL('../data/content.json', import.meta.url), 'utf8'));
     database.prepare('INSERT OR IGNORE INTO site_content (id, document, updated_at) VALUES (1, ?, ?)')
-      .run(JSON.stringify(initial), new Date().toISOString());
+      .run(JSON.stringify(upgradeContent(initial)), new Date().toISOString());
   }
+  database.transaction(() => {
+    const current = database.prepare('SELECT document, version FROM site_content WHERE id = 1').get();
+    const content = JSON.parse(current.document);
+    if (content.schemaVersion < 2) database.prepare('UPDATE site_content SET document = ?, version = version + 1, updated_at = ? WHERE id = 1 AND version = ?')
+      .run(JSON.stringify(upgradeContent(content)), new Date().toISOString(), current.version);
+  })();
   const select = database.prepare('SELECT document, version, updated_at FROM site_content WHERE id = 1');
   const update = database.prepare('UPDATE site_content SET document = ?, version = version + 1, updated_at = ? WHERE id = 1 AND version = ?');
   return {

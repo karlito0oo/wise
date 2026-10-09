@@ -6,7 +6,7 @@ export async function fetchContent(signal) {
   const response = await fetch(`${baseUrl}/content`, { signal, headers: { Accept: 'application/json' } });
   if (!response.ok) throw new Error(`Content request failed: ${response.status}`);
   const content = await response.json();
-  if (content.schemaVersion !== 1 || !content.site || !content.services?.items) {
+  if (content.schemaVersion !== 2 || !content.site || !content.services?.items || !content.events || !content.contactForm) {
     throw new Error('Unsupported content schema');
   }
   return content;

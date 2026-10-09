@@ -190,6 +190,127 @@
 			],
 			"isBackground": false,
 			"problemMatcher": []
+		},
+		{
+			"label": "WISE: Demo Removal Build",
+			"type": "shell",
+			"command": "C:\\Program Files\\nodejs\\node.exe",
+			"args": [
+				"node_modules/vite/bin/vite.js",
+				"build"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "WISE: Install Media and Email",
+			"type": "shell",
+			"command": "C:\\Program Files\\nodejs\\node.exe",
+			"args": [
+				"C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js",
+				"install",
+				"multer",
+				"sharp",
+				"nodemailer"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "WISE: Dynamic Content Migration Tests",
+			"type": "shell",
+			"command": "C:\\Program Files\\nodejs\\node.exe",
+			"args": [
+				"--test",
+				"tests/store.test.js",
+				"tests/admin.test.js",
+				"tests/content.test.js"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "WISE: Media and Contact Tests",
+			"type": "shell",
+			"command": "C:\\Program Files\\nodejs\\node.exe",
+			"args": [
+				"--test",
+				"tests/media-contact.test.js"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "WISE: Verify Media and Contact",
+			"type": "shell",
+			"command": "C:\\Program Files\\nodejs\\node.exe",
+			"args": [
+				"--test",
+				"tests/media-contact.test.js"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "WISE: Events and Contact Build",
+			"type": "shell",
+			"command": "C:\\Program Files\\nodejs\\node.exe",
+			"args": [
+				"node_modules/vite/bin/vite.js",
+				"build"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "WISE: Dynamic Admin Lint",
+			"type": "shell",
+			"command": "C:\\Program Files\\nodejs\\node.exe",
+			"args": [
+				"node_modules/eslint/bin/eslint.js",
+				"src",
+				"server",
+				"shared",
+				"tests",
+				"scripts",
+				"vite.config.js"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			]
+		},
+		{
+			"label": "WISE: Prepare Logo Asset",
+			"type": "shell",
+			"command": "C:\\Program Files\\nodejs\\node.exe",
+			"args": [
+				"scripts/prepare-assets.js"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "WISE: Upload Limits and Mail Security",
+			"type": "shell",
+			"command": "C:\\Program Files\\nodejs\\node.exe",
+			"args": [
+				"--test",
+				"tests/media-contact.test.js"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "WISE: Preserve Existing CMS Data",
+			"type": "shell",
+			"command": "C:\\Program Files\\nodejs\\node.exe",
+			"args": [
+				"--test",
+				"tests/store.test.js"
+			],
+			"isBackground": false,
+			"problemMatcher": []
 		}
 	]
 }

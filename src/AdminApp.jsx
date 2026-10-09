@@ -4,6 +4,9 @@ import { adminRequest } from './api/admin.js';
 import { adminContent as text } from './data/adminContent.js';
 import { ContentFields } from './components/ContentFields.jsx';
 import { Icon } from './components/ui.jsx';
+import { ImageUpload } from './components/ImageUpload.jsx';
+import { CollectionEditor } from './components/CollectionEditor.jsx';
+import { collectionDefinitions } from '../shared/content.js';
 import './admin.css';
 
 /** Provides sign-in and transactional content editing without storing credentials in browser storage. */
@@ -17,6 +20,7 @@ export default function AdminApp() {
   const [error, setError] = useState('');
   const [invalidFields, setInvalidFields] = useState([]);
   const [conflict, setConflict] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const dirty = Boolean(document && JSON.stringify(document.content) !== JSON.stringify(draft));
 
   useEffect(() => {
@@ -69,17 +73,21 @@ export default function AdminApp() {
 
   /** Edits a cloned section tree without mutating the published snapshot. */
   function change(path, value) {
-    const next = structuredClone(draft);
-    let target = next[sectionId];
-    for (const key of path.slice(0, -1)) target = target[key];
-    target[path.at(-1)] = value;
-    setDraft(next); setMessage(''); setError(''); setInvalidFields([]);
+    setDraft(current => {
+      const next = structuredClone(current);
+      let target = next[sectionId];
+      for (const key of path.slice(0, -1)) target = target[key];
+      target[path.at(-1)] = value;
+      if (sectionId === 'services' && !next.services.items.some(item => item.id === next.services.defaultTabId)) next.services.defaultTabId = next.services.items[0]?.id || '';
+      return next;
+    });
+    setMessage(''); setError(''); setInvalidFields([]);
   }
 
   /** Publishes a version-checked document and updates the saved snapshot. */
   async function publish(event) {
     event.preventDefault();
-    if (!dirty || conflict) return;
+    if (!dirty || conflict || uploading) return;
     setBusy(true); setError(''); setInvalidFields([]);
     try {
       const saved = await adminRequest('/content', { method: 'PUT', csrfToken: session.csrfToken, body: { content: draft, version: document.version } });
@@ -121,17 +129,20 @@ export default function AdminApp() {
   </main>;
 
   const selected = text.sections.find(section => section.id === sectionId);
+  const collection = collectionDefinitions[sectionId];
   return <div className="admin-shell">
-    <header className="admin-header"><h1>{text.title}</h1><div className="admin-header-actions"><span>{session.username}</span><a href="/" target="_blank" rel="noreferrer"><Icon name="fa-arrow-up-right-from-square" />{text.preview}</a><button onClick={signOut} disabled={busy}><Icon name="fa-right-from-bracket" />{text.signOut}</button></div></header>
+    <header className="admin-header"><h1>{text.title}</h1><div className="admin-header-actions"><span>{session.username}</span><a href="/" target="_blank" rel="noreferrer"><Icon name="fa-arrow-up-right-from-square" />{text.preview}</a><button onClick={signOut} disabled={busy || uploading}><Icon name="fa-right-from-bracket" />{text.signOut}</button></div></header>
     <div className="admin-layout">
-      <nav className="admin-sidebar" aria-label={text.selection}>{text.sections.map(section => <button key={section.id} aria-current={section.id === sectionId ? 'page' : undefined} onClick={() => setSectionId(section.id)}><Icon name={section.icon} />{section.label}</button>)}</nav>
+      <nav className="admin-sidebar" aria-label={text.selection}>{text.sections.map(section => <button key={section.id} disabled={busy || uploading} aria-current={section.id === sectionId ? 'page' : undefined} onClick={() => setSectionId(section.id)}><Icon name={section.icon} />{section.label}</button>)}</nav>
       <main className="admin-editor">
-        <div className="admin-section-select"><label htmlFor="section-select">{text.selection}</label><select id="section-select" value={sectionId} onChange={event => setSectionId(event.target.value)}>{text.sections.map(section => <option key={section.id} value={section.id}>{section.label}</option>)}</select></div>
+        <div className="admin-section-select"><label htmlFor="section-select">{text.selection}</label><select id="section-select" value={sectionId} disabled={busy || uploading} onChange={event => setSectionId(event.target.value)}>{text.sections.map(section => <option key={section.id} value={section.id}>{section.label}</option>)}</select></div>
         <form onSubmit={publish} aria-busy={busy}>
-          <div className="admin-editor-toolbar"><div><h2>{selected.label}</h2><p>{text.version} {document.version} · {text.updated}: {new Date(document.updatedAt).toLocaleString()}</p></div><div className="admin-publish-actions"><button type="button" onClick={discard} disabled={busy || (!dirty && !conflict)} title={conflict ? text.reload : text.discard}><Icon name={conflict ? 'fa-rotate' : 'fa-arrow-rotate-left'} />{conflict ? text.reload : text.discard}</button><button type="submit" className="admin-primary" disabled={busy || !dirty || conflict}><Icon name="fa-floppy-disk" />{busy ? text.saving : text.publish}</button></div></div>
-          <p className="admin-save-status" role="status">{message || (dirty ? text.dirty : text.clean)}</p>
+          <div className="admin-editor-toolbar"><div><h2>{selected.label}</h2><p>{text.version} {document.version} · {text.updated}: {new Date(document.updatedAt).toLocaleString()}</p></div><div className="admin-publish-actions"><button type="button" onClick={discard} disabled={busy || uploading || (!dirty && !conflict)} title={conflict ? text.reload : text.discard}><Icon name={conflict ? 'fa-rotate' : 'fa-arrow-rotate-left'} />{conflict ? text.reload : text.discard}</button><button type="submit" className="admin-primary" disabled={busy || uploading || !dirty || conflict}><Icon name="fa-floppy-disk" />{busy ? text.saving : text.publish}</button></div></div>
+          <p className="admin-save-status" role="status">{uploading ? text.uploading : message || (dirty ? text.dirty : text.clean)}</p>
           {error && <div role="alert" className="admin-error"><p>{error}</p>{invalidFields.length > 0 && <ul>{invalidFields.map(field => <li key={field}>{field}</li>)}</ul>}</div>}
-          <ContentFields value={draft[sectionId]} original={document.content[sectionId]} sectionId={sectionId} onChange={change} disabled={busy} />
+          {sectionId === 'site' && <div className="admin-logo-editor"><img src={draft.site.logo.src} alt={draft.site.logo.alt} width="96" height="96" /><ImageUpload id="site-logo-upload" csrfToken={session.csrfToken} disabled={busy || uploading} onBusy={setUploading} onError={report} onUploaded={images => change(['logo'], { src: images[0].src, alt: draft.site.logo.alt })} /></div>}
+          <ContentFields value={draft[sectionId]} original={document.content[sectionId]} sectionId={sectionId} omit={collection ? [collection.key] : []} onChange={change} disabled={busy || uploading} />
+          {collection && <CollectionEditor definition={collection} sectionId={sectionId} value={draft[sectionId]} original={document.content[sectionId]} disabled={busy || uploading} csrfToken={session.csrfToken} onChange={change} onBusy={setUploading} onError={report} />}
         </form>
       </main>
     </div>

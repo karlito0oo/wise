@@ -2,16 +2,15 @@
 import { useState } from 'react';
 import { ContentLink, Icon } from './ui.jsx';
 import { uiContent } from '../data/uiContent.js';
+import { SiteLogo } from './SiteLogo.jsx';
 
 /** Provides responsive navigation with explicit expanded state and keyboard access. */
 export function SiteHeader({ site, navigation }) {
   const [open, setOpen] = useState(false);
-  return <header className="site-header sticky top-12 z-40 bg-white/90 backdrop-blur-md border-b border-brand-100 shadow-sm">
+  return <header className="site-header sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-brand-100 shadow-sm">
     <div className="section-container flex justify-between items-center h-20 gap-4">
       <ContentLink href={navigation.homeHref} className="flex items-center gap-3 group shrink-0">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-brand-700 to-brand-500 flex items-center justify-center text-white font-extrabold text-lg shadow-md group-hover:scale-105 transition-transform" aria-hidden="true">
-          {site.logo.letters.map(letter => <span key={letter.id} className={letter.tone === 'muted' ? 'text-brand-100' : ''}>{letter.text}</span>)}
-        </div>
+        <SiteLogo logo={site.logo} />
         <div><span className="text-xl font-extrabold text-brand-dark block leading-none">{site.name}</span><span className="text-[10px] text-brand-700 uppercase font-semibold">{site.tagline}</span></div>
       </ContentLink>
       <nav className="desktop-nav gap-6 text-sm font-semibold text-slate-700">

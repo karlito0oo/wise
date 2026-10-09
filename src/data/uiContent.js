@@ -7,4 +7,9 @@ export const uiContent = {
   openMenu: 'Open navigation menu',
   closeMenu: 'Close navigation menu',
   serviceNavigation: 'Service categories',
+  openImage: 'View Image',
+  closeImage: 'Close Image',
+  previousImage: 'Previous Image',
+  nextImage: 'Next Image',
+  website: 'Website',
 };

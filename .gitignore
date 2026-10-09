@@ -7,3 +7,4 @@ coverage/
 server/data/*.sqlite*
 server/data/*.db*
 backups/
+server/data/uploads/

@@ -2,13 +2,14 @@
 /** Returns bounded errors without leaking exception details or internal file paths. */
 export function errorHandler(error, request, response, next) {
   if (response.headersSent) return next(error);
-  const status = Number.isInteger(error.status) && error.status >= 400 && error.status < 500
+  const uploadError = error.name === 'MulterError';
+  const status = uploadError ? (error.code === 'LIMIT_FILE_SIZE' ? 413 : 400) : Number.isInteger(error.status) && error.status >= 400 && error.status < 500
     ? error.status : 500;
   if (status === 500) request.app.locals.logger.error('Content request failed:', error);
   response.status(status).set('Cache-Control', 'no-store').json({
     error: {
-      code: status === 403 ? 'ORIGIN_NOT_ALLOWED' : 'REQUEST_FAILED',
-      message: status === 403 ? 'Origin not allowed.' : 'Unable to complete this request.',
+      code: uploadError ? 'INVALID_UPLOAD' : error.code === 'INVALID_IMAGE' ? 'INVALID_IMAGE' : status === 403 ? 'ORIGIN_NOT_ALLOWED' : 'REQUEST_FAILED',
+      message: uploadError ? 'Upload up to 8 images, at most 5 MB each.' : error.code === 'INVALID_IMAGE' ? 'Use a valid JPEG, PNG, or WebP image.' : status === 403 ? 'Origin not allowed.' : 'Unable to complete this request.',
     },
   });
 }

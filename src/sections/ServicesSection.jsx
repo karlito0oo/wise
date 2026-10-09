@@ -19,6 +19,7 @@ export function ServicesSection({ section }) {
     setSelectedId(section.items[target].id);
     document.getElementById(`tab-${section.items[target].id}`).focus();
   }
+  if (!selected) return <section id={section.id} className="py-20 bg-white"><div className="section-container"><h2 className="text-3xl font-extrabold">{section.title}</h2><p className="mt-4 text-slate-600">{section.emptyMessage}</p></div></section>;
   return <section id={section.id} className="py-20 bg-white"><div className="section-container">
     <div className="services-heading flex flex-col justify-between gap-4 mb-12"><div><p className="text-xs font-bold text-brand-700 uppercase">{section.eyebrow}</p><h2 className="text-3xl font-extrabold text-slate-900 mt-2">{section.title}</h2></div><p className="text-slate-600 text-sm max-w-md">{section.description}</p></div>
     <div role="tablist" aria-label={uiContent.serviceNavigation} className="flex gap-2 overflow-x-auto pb-4 mb-8 border-b border-slate-200">

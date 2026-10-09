@@ -2,9 +2,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
-import mockCmsData from '../src/data/mockCmsData.js';
+import originalCmsData from '../src/data/mockCmsData.js';
+import { upgradeContent } from '../shared/content.js';
 import { createApp } from '../server/app.js';
 import { createContentStore } from '../server/models/contentStore.js';
+const mockCmsData = upgradeContent(originalCmsData);
 
 /** Gives each test isolated, disposable SQLite content instead of opening the live database. */
 function testApp(t) {
