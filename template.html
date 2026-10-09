@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WISE Inc. - Wasto Integrated Solutions on Environment</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+              dark: '#0a2e18'
+            },
+            accent: {
+              pink: '#ec4899',
+              amber: '#f59e0b'
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Smooth Scroll */
+    html { scroll-behavior: smooth; }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0a2e18; }
+    ::-webkit-scrollbar-thumb { background: #16a34a; border-radius: 4px; }
+
+    /* Glassmorphism Effect */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(220, 252, 231, 0.5);
+    }
+    
+    .glass-dark {
+      background: rgba(10, 46, 24, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    /* Mobile Frame Device Simulator Styling */
+    .mobile-simulator {
+      max-width: 390px !important;
+      margin: 2rem auto !important;
+      border: 12px solid #1f2937 !important;
+      border-radius: 40px !important;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+      overflow-x: hidden !important;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- ================= TOP TOOLBAR (DESIGN CONTEXT & MOBILE PREVIEW TOGGLE) ================= -->
+  <div class="bg-brand-dark text-white text-xs py-2 px-4 sticky top-0 z-50 border-b border-brand-700 flex justify-between items-center shadow-lg">
+    <div class="flex items-center space-x-2">
+      <span class="inline-block w-2.5 h-2.5 rounded-full bg-brand-500 animate-pulse"></span>
+      <span class="font-bold tracking-wide">WISE Inc. Interactive Concept</span>
+    </div>
+    <div class="flex items-center space-x-3">
+      <button id="toggleMobileSim" onclick="toggleMobileView()" class="bg-brand-700 hover:bg-brand-600 px-3 py-1 rounded-full text-white font-semibold transition-all flex items-center gap-1.5 shadow">
+        <i class="fa-solid fa-mobile-screen-button"></i>
+        <span id="simBtnText">Simulate Mobile View</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN WRAPPER CONTAINER FOR SIMULATOR COMPATIBILITY -->
+  <div id="appContainer" class="transition-all duration-500">
+
+    <!-- ================= NAVIGATION BAR ================= -->
+    <header class="sticky top-[33px] z-40 bg-white/90 backdrop-blur-md border-b border-brand-100 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-20">
+          
+          <!-- Logo -->
+          <a href="#" class="flex items-center space-x-3 group">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-brand-700 to-brand-500 flex items-center justify-center text-white font-extrabold text-lg shadow-md group-hover:scale-105 transition-transform">
+              W<span class="text-brand-100">I</span>S<span class="text-brand-100">E</span>
+            </div>
+            <div>
+              <span class="text-xl font-extrabold tracking-tight text-brand-dark block leading-none">WISE Inc.</span>
+              <span class="text-[10px] text-brand-600 tracking-wider uppercase font-semibold">Your Full Circle Partner</span>
+            </div>
+          </a>
+
+          <!-- Desktop Navigation -->
+          <nav class="hidden md:flex space-x-8 text-sm font-semibold text-slate-700">
+            <a href="#about" class="hover:text-brand-600 transition-colors py-2">About Us</a>
+            <a href="#framework" class="hover:text-brand-600 transition-colors py-2">Ecosystem</a>
+            <a href="#services" class="hover:text-brand-600 transition-colors py-2">Services</a>
+            <a href="#team" class="hover:text-brand-600 transition-colors py-2">Leadership</a>
+            <a href="#calculator" class="hover:text-brand-600 transition-colors py-2">Impact Tool</a>
+            <a href="#contact" class="hover:text-brand-600 transition-colors py-2">Contact</a>
+          </nav>
+
+          <!-- Action Button -->
+          <div class="hidden md:flex">
+            <a href="#contact" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2.5 rounded-full shadow-lg shadow-brand-600/30 hover:shadow-brand-600/50 hover:-translate-y-0.5 transition-all text-sm flex items-center gap-2">
+              <i class="fa-solid fa-leaf"></i> Partner With Us
+            </a>
+          </div>
+
+          <!-- Mobile Hamburger Menu Button -->
+          <div class="md:hidden flex items-center">
+            <button id="mobileMenuBtn" onclick="toggleMobileMenu()" class="text-slate-700 hover:text-brand-600 focus:outline-none p-2">
+              <i class="fa-solid fa-bars text-2xl" id="menuIcon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Dropdown Navigation Menu -->
+      <div id="mobileDropdown" class="hidden md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-6 space-y-3 shadow-xl">
+        <a href="#about" onclick="toggleMobileMenu()" class="block py-2 text-slate-700 font-medium hover:text-brand-600">About Us</a>
+        <a href="#framework" onclick="toggleMobileMenu()" class="block py-2 text-slate-700 font-medium hover:text-brand-600">Ecosystem</a>
+        <a href="#services" onclick="toggleMobileMenu()" class="block py-2 text-slate-700 font-medium hover:text-brand-600">Services</a>
+        <a href="#team" onclick="toggleMobileMenu()" class="block py-2 text-slate-700 font-medium hover:text-brand-600">Leadership</a>
+        <a href="#calculator" onclick="toggleMobileMenu()" class="block py-2 text-slate-700 font-medium hover:text-brand-600">Impact Tool</a>
+        <a href="#contact" onclick="toggleMobileMenu()" class="block py-2 text-slate-700 font-medium hover:text-brand-600">Contact</a>
+        <a href="#contact" onclick="toggleMobileMenu()" class="block w-full text-center bg-brand-600 text-white font-bold py-3 rounded-xl shadow">Partner With Us</a>
+      </div>
+    </header>
+
+    <!-- ================= HERO SECTION ================= -->
+    <section class="relative bg-gradient-to-br from-brand-dark via-brand-900 to-slate-900 text-white py-24 lg:py-32 overflow-hidden">
+      <!-- Background Ambient Glows -->
+      <div class="absolute -top-40 -right-40 w-96 h-96 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid lg:grid-cols-12 gap-12 items-center">
+          
+          <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-100 text-xs font-semibold uppercase tracking-wider">
+              <i class="fa-solid fa-arrows-spin text-brand-500 animate-spin" style="animation-duration: 8s;"></i>
+              Empowering Filipino Communities & Women
+            </div>
+
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+              Your Full Circle Partner in <span class="bg-clip-text text-transparent bg-gradient-to-r from-brand-500 to-emerald-300">Sustainability</span>
+            </h1>
+
+            <p class="text-slate-300 text-lg sm:text-xl max-w-2xl font-light">
+              <strong class="text-white font-semibold">Wasto Integrated Solutions on Environment Inc. (WISE)</strong> transforms local waste into tangible value through localized recovery systems, climate tech, and women-driven micro-enterprises.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+              <a href="#services" class="bg-brand-500 hover:bg-brand-600 text-slate-950 font-bold px-8 py-4 rounded-xl shadow-xl shadow-brand-500/20 hover:scale-105 transition-all text-center">
+                Explore Solutions
+              </a>
+              <a href="#calculator" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-8 py-4 rounded-xl transition-all text-center backdrop-blur-sm flex items-center justify-center gap-2">
+                <i class="fa-solid fa-calculator"></i> Estimate Eco Impact
+              </a>
+            </div>
+
+            <!-- Highlights Pill -->
+            <div class="pt-8 border-t border-brand-800/80 grid grid-cols-3 gap-4 text-center lg:text-left">
+              <div>
+                <span class="block text-2xl font-bold text-brand-500">100%</span>
+                <span class="text-xs text-slate-400">Filipino Innovation</span>
+              </div>
+              <div>
+                <span class="block text-2xl font-bold text-accent-pink">Women-Led</span>
+                <span class="text-xs text-slate-400">Circular Enterprise</span>
+              </div>
+              <div>
+                <span class="block text-2xl font-bold text-emerald-400">Zero-Waste</span>
+                <span class="text-xs text-slate-400">Recovery Goals</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero Graphic Card -->
+          <div class="lg:col-span-5 relative">
+            <div class="glass-dark p-8 rounded-3xl relative shadow-2xl overflow-hidden border border-brand-500/30">
+              <div class="absolute -top-12 -right-12 w-32 h-32 bg-brand-500/20 rounded-full blur-2xl"></div>
+              
+              <div class="text-center space-y-6">
+                <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-brand-500 to-emerald-700 flex items-center justify-center shadow-lg border-4 border-white/10">
+                  <i class="fa-solid fa-recycle text-4xl text-white"></i>
+                </div>
+                
+                <div>
+                  <h3 class="text-2xl font-bold text-white">The "WASTO" Principle</h3>
+                  <p class="text-sm text-slate-300 mt-2">
+                    Doing what is proper, responsible, practical, and beneficial for people and the planet.
+                  </p>
+                </div>
+
+                <!-- Wed Wear Pink Special Focus Card -->
+                <div class="bg-gradient-to-r from-pink-900/40 to-purple-900/40 p-4 rounded-2xl border border-pink-500/30 flex items-center gap-4 text-left">
+                  <div class="bg-pink-500 text-white p-3 rounded-xl">
+                    <i class="fa-solid fa-female text-xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-pink-200 text-sm">Women on Waste (WOW)</h4>
+                    <p class="text-xs text-slate-300">Empowering women drivers, operators & micro-entrepreneurs.</p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ABOUT SECTION ================= -->
+    <section id="about" class="py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto space-y-4">
+          <h2 class="text-xs font-bold text-brand-600 uppercase tracking-widest">About WISE Inc.</h2>
+          <p class="text-3xl sm:text-4xl font-extrabold text-slate-900">Transforming Waste into Sustainable Resources</p>
+          <p class="text-slate-600">
+            WISE is a Filipino circularity company advancing practical, community-driven circular economy solutions across LGUs, schools, businesses, and underserved communities.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 mt-16">
+          <!-- Mission -->
+          <div class="bg-brand-50/50 p-8 rounded-2xl border border-brand-100 hover:shadow-lg transition-shadow relative overflow-hidden">
+            <div class="w-12 h-12 rounded-xl bg-brand-600 text-white flex items-center justify-center mb-6 text-xl shadow">
+              <i class="fa-solid fa-bullseye"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 mb-3">Our Mission</h3>
+            <p class="text-slate-600 leading-relaxed">
+              To build localized recovery systems and deploy appropriate technologies that convert waste streams into circular products, generating resilient livelihoods and empowering local waste workers and women.
+            </p>
+          </div>
+
+          <!-- Vision -->
+          <div class="bg-emerald-50/50 p-8 rounded-2xl border border-emerald-100 hover:shadow-lg transition-shadow relative overflow-hidden">
+            <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center mb-6 text-xl shadow">
+              <i class="fa-solid fa-eye"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 mb-3">Our Vision</h3>
+            <p class="text-slate-600 leading-relaxed">
+              Empowered Filipino communities building self-sustaining circular systems that significantly reduce waste, create inclusive opportunities, strengthen local economies, and support EPR and ESG commitments.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TRIPLE ECOSYSTEM PARTNERSHIP ================= -->
+    <section id="framework" class="py-20 bg-slate-100">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 class="text-xs font-bold text-brand-600 uppercase tracking-widest">Collaborative Synergies</h2>
+          <p class="text-3xl font-extrabold text-slate-900 mt-2">The Partnership & Technology Ecosystem</p>
+          <p class="text-slate-600 mt-2">Combining community leadership, circular engineering, and climate tech.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+          
+          <!-- WISE -->
+          <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-brand-500 transition-all">
+            <div class="w-14 h-14 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center text-2xl font-extrabold mb-6">
+              WISE
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">WISE Inc.</h3>
+            <p class="text-xs text-brand-600 font-semibold uppercase tracking-wider mb-4">Community & Program Lead</p>
+            <p class="text-slate-600 text-sm leading-relaxed">
+              Leads community engagement, program capacity building, women empowerment initiatives, and LGU mobilization to ensure circular projects are locally relevant and inclusive.
+            </p>
+          </div>
+
+          <!-- Alpha DDSI -->
+          <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-brand-500 transition-all">
+            <div class="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-2xl font-extrabold mb-6">
+              &alpha;
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Alpha DDSI</h3>
+            <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-4">Technology & Fabrication</p>
+            <p class="text-slate-600 text-sm leading-relaxed">
+              Provides technical expertise in waste-to-product transformation, plastic processing tools, equipment fabrication, prototyping, and circular infrastructure development.
+            </p>
+          </div>
+
+          <!-- Lithos Manufacturing -->
+          <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-brand-500 transition-all">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-2xl font-extrabold mb-6">
+              <i class="fa-solid fa-mountain"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Lithos Manufacturing</h3>
+            <p class="text-xs text-emerald-600 font-semibold uppercase tracking-wider mb-4">Climate Innovation</p>
+            <p class="text-slate-600 text-sm leading-relaxed">
+              Pioneers mineral-based climate technologies, rainwater harvesting systems (Rainfold), disaster resilience tools, and nanotechnology for water resilience.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= INTERACTIVE SERVICES SECTION ================= -->
+    <section id="services" class="py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+          <div>
+            <h2 class="text-xs font-bold text-brand-600 uppercase tracking-widest">Our Work</h2>
+            <p class="text-3xl font-extrabold text-slate-900 mt-2">Comprehensive Circular Services</p>
+          </div>
+          <p class="text-slate-500 text-sm max-w-md mt-4 md:mt-0">
+            Click through our core operational pillars below to explore how we close the loop on waste.
+          </p>
+        </div>
+
+        <!-- Interactive Tabs Navigation -->
+        <div class="flex space-x-2 overflow-x-auto pb-4 mb-8 border-b border-slate-200">
+          <button onclick="switchServiceTab(0)" class="service-tab-btn active bg-brand-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all shadow">
+            1. Waste Recovery Systems
+          </button>
+          <button onclick="switchServiceTab(1)" class="service-tab-btn bg-slate-100 text-slate-600 hover:bg-slate-200 px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all">
+            2. Circular Resource Centers
+          </button>
+          <button onclick="switchServiceTab(2)" class="service-tab-btn bg-slate-100 text-slate-600 hover:bg-slate-200 px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all">
+            3. Women Empowerment
+          </button>
+          <button onclick="switchServiceTab(3)" class="service-tab-btn bg-slate-100 text-slate-600 hover:bg-slate-200 px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all">
+            4. Technology & Infrastructure
+          </button>
+          <button onclick="switchServiceTab(4)" class="service-tab-btn bg-slate-100 text-slate-600 hover:bg-slate-200 px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all">
+            5. ESG, CSR & EPR Support
+          </button>
+        </div>
+
+        <!-- Tab Content Displays -->
+        <div id="serviceTabContent" class="bg-slate-50 rounded-3xl p-8 border border-slate-200 min-h-[300px]">
+          <!-- Dynamic Content Populated via JavaScript -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= INTERACTIVE ECO IMPACT CALCULATOR ================= -->
+    <section id="calculator" class="py-20 bg-gradient-to-br from-brand-dark to-slate-900 text-white relative overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        
+        <div class="grid lg:grid-cols-12 gap-12 items-center">
+          
+          <div class="lg:col-span-5 space-y-4">
+            <span class="text-xs font-bold text-brand-500 uppercase tracking-widest">Interactive Calculator</span>
+            <h2 class="text-3xl sm:text-4xl font-extrabold">Estimate Your Community's Plastic Diversion</h2>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Use this interactive model to calculate how localized recycling machinery and recovery centers turn household plastic waste into upcycled construction materials and community revenue.
+            </p>
+            
+            <div class="bg-brand-900/50 p-4 rounded-xl border border-brand-500/20 text-xs text-brand-200 space-y-1">
+              <p><i class="fa-solid fa-circle-info text-brand-500"></i> Estimates based on standard community-scale plastic shredder and hot-press molding configurations.</p>
+            </div>
+          </div>
+
+          <!-- Calculator Form & Output -->
+          <div class="lg:col-span-7 bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/15 shadow-2xl">
+            
+            <div class="space-y-6">
+              
+              <!-- Slider 1 -->
+              <div>
+                <div class="flex justify-between items-center mb-2">
+                  <label class="text-sm font-semibold text-slate-200">Monthly Plastic Recovered (kg):</label>
+                  <span id="plasticVal" class="text-xl font-bold text-brand-500">500 kg</span>
+                </div>
+                <input type="range" id="plasticSlider" min="100" max="5000" step="100" value="500" oninput="updateCalculator()" class="w-full accent-brand-500 cursor-pointer">
+              </div>
+
+              <!-- Slider 2 -->
+              <div>
+                <div class="flex justify-between items-center mb-2">
+                  <label class="text-sm font-semibold text-slate-200">Active Women & Waste Operators:</label>
+                  <span id="womenVal" class="text-xl font-bold text-accent-pink">10 Persons</span>
+                </div>
+                <input type="range" id="womenSlider" min="2" max="50" step="1" value="10" oninput="updateCalculator()" class="w-full accent-pink-500 cursor-pointer">
+              </div>
+
+              <!-- Calculated Output Display Grid -->
+              <div class="grid sm:grid-cols-3 gap-4 pt-6 border-t border-white/10 text-center">
+                
+                <div class="bg-black/30 p-4 rounded-2xl border border-white/5">
+                  <i class="fa-solid fa-cubes text-brand-500 text-xl mb-1"></i>
+                  <span class="block text-xs text-slate-400">Eco-Boards / Bricks Created</span>
+                  <span id="outputBoards" class="text-2xl font-bold text-white mt-1">100 pcs</span>
+                </div>
+
+                <div class="bg-black/30 p-4 rounded-2xl border border-white/5">
+                  <i class="fa-solid fa-cloud-arrow-down text-emerald-400 text-xl mb-1"></i>
+                  <span class="block text-xs text-slate-400">Est. CO2 Avoided</span>
+                  <span id="outputCO2" class="text-2xl font-bold text-emerald-400 mt-1">750 kg</span>
+                </div>
+
+                <div class="bg-black/30 p-4 rounded-2xl border border-white/5">
+                  <i class="fa-solid fa-hand-holding-dollar text-amber-400 text-xl mb-1"></i>
+                  <span class="block text-xs text-slate-400">Livelihood Potential</span>
+                  <span id="outputRevenue" class="text-2xl font-bold text-amber-400 mt-1">₱15,000</span>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= LEADERSHIP TEAM SECTION ================= -->
+    <section id="team" class="py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 class="text-xs font-bold text-brand-600 uppercase tracking-widest">Leadership & Innovation</h2>
+          <p class="text-3xl font-extrabold text-slate-900 mt-2">Driven by Experienced Advocates</p>
+          <p class="text-slate-600 mt-2">Combining operational rigor, sustainable design, climate tech, and social development.</p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
+          
+          <!-- Katrina Moreno -->
+          <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center hover:shadow-xl transition-all group">
+            <div class="w-20 h-20 mx-auto rounded-full bg-brand-200 text-brand-800 flex items-center justify-center font-bold text-xl mb-4 group-hover:scale-110 transition-transform shadow">
+              KM
+            </div>
+            <h3 class="font-bold text-slate-900 text-base">Katrina Moreno</h3>
+            <p class="text-xs text-brand-600 font-semibold mt-1">President & Chief Executive Basurera</p>
+            <p class="text-xs text-slate-500 mt-3 leading-relaxed">Operations & hazardous waste management expert with international leadership experience.</p>
+          </div>
+
+          <!-- Michelle Bautista-Tañada -->
+          <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center hover:shadow-xl transition-all group">
+            <div class="w-20 h-20 mx-auto rounded-full bg-pink-200 text-pink-800 flex items-center justify-center font-bold text-xl mb-4 group-hover:scale-110 transition-transform shadow">
+              MT
+            </div>
+            <h3 class="font-bold text-slate-900 text-base">Michelle Bautista-Tañada</h3>
+            <p class="text-xs text-pink-600 font-semibold mt-1">Director for Advocacy & Community</p>
+            <p class="text-xs text-slate-500 mt-3 leading-relaxed">Award-winning sustainability advocate, PASS Foundation Co-Founder, DENR/DOST recognized.</p>
+          </div>
+
+          <!-- Noel F. Tañada -->
+          <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center hover:shadow-xl transition-all group">
+            <div class="w-20 h-20 mx-auto rounded-full bg-emerald-200 text-emerald-800 flex items-center justify-center font-bold text-xl mb-4 group-hover:scale-110 transition-transform shadow">
+              NT
+            </div>
+            <h3 class="font-bold text-slate-900 text-base">Noel F. Tañada</h3>
+            <p class="text-xs text-emerald-600 font-semibold mt-1">Director for Design & Innovation</p>
+            <p class="text-xs text-slate-500 mt-3 leading-relaxed">Global brand furniture designer, patent holder for upcycled road safety & eco products.</p>
+          </div>
+
+          <!-- Eleanor Olegario -->
+          <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center hover:shadow-xl transition-all group">
+            <div class="w-20 h-20 mx-auto rounded-full bg-cyan-200 text-cyan-800 flex items-center justify-center font-bold text-xl mb-4 group-hover:scale-110 transition-transform shadow">
+              EO
+            </div>
+            <h3 class="font-bold text-slate-900 text-base">Eleanor Olegario</h3>
+            <p class="text-xs text-cyan-600 font-semibold mt-1">Director for Climate Action</p>
+            <p class="text-xs text-slate-500 mt-3 leading-relaxed">Founder of Lithos Mfg, multi-awarded technopreneur holding 7 utility models & 28+ papers.</p>
+          </div>
+
+          <!-- Evelyn Mejia Young -->
+          <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center hover:shadow-xl transition-all group">
+            <div class="w-20 h-20 mx-auto rounded-full bg-purple-200 text-purple-800 flex items-center justify-center font-bold text-xl mb-4 group-hover:scale-110 transition-transform shadow">
+              EY
+            </div>
+            <h3 class="font-bold text-slate-900 text-base">Evelyn Mejia Young</h3>
+            <p class="text-xs text-purple-600 font-semibold mt-1">Director for Women Empowerment</p>
+            <p class="text-xs text-slate-500 mt-3 leading-relaxed">Heirs of the World Inc. Director, BSK EntrePinoy consultant & UNAP advocate.</p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= IMPLEMENTATION STEPPING FRAMEWORK ================= -->
+    <section class="py-20 bg-slate-900 text-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 class="text-xs font-bold text-brand-500 uppercase tracking-widest">7-Step Methodology</h2>
+          <p class="text-3xl font-extrabold mt-2">Implementation Framework</p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 text-center">
+          
+          <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50">
+            <div class="w-8 h-8 rounded-full bg-brand-500 text-slate-950 font-bold mx-auto mb-3 flex items-center justify-center text-sm">1</div>
+            <h4 class="font-bold text-xs text-white">Community Assessment</h4>
+          </div>
+
+          <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50">
+            <div class="w-8 h-8 rounded-full bg-brand-500 text-slate-950 font-bold mx-auto mb-3 flex items-center justify-center text-sm">2</div>
+            <h4 class="font-bold text-xs text-white">Program Design</h4>
+          </div>
+
+          <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50">
+            <div class="w-8 h-8 rounded-full bg-brand-500 text-slate-950 font-bold mx-auto mb-3 flex items-center justify-center text-sm">3</div>
+            <h4 class="font-bold text-xs text-white">Stakeholder Mobilization</h4>
+          </div>
+
+          <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50">
+            <div class="w-8 h-8 rounded-full bg-brand-500 text-slate-950 font-bold mx-auto mb-3 flex items-center justify-center text-sm">4</div>
+            <h4 class="font-bold text-xs text-white">System Deployment</h4>
+          </div>
+
+          <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50">
+            <div class="w-8 h-8 rounded-full bg-brand-500 text-slate-950 font-bold mx-auto mb-3 flex items-center justify-center text-sm">5</div>
+            <h4 class="font-bold text-xs text-white">Capacity Building</h4>
+          </div>
+
+          <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50">
+            <div class="w-8 h-8 rounded-full bg-brand-500 text-slate-950 font-bold mx-auto mb-3 flex items-center justify-center text-sm">6</div>
+            <h4 class="font-bold text-xs text-white">Operations & Track</h4>
+          </div>
+
+          <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50 col-span-2 md:col-span-1">
+            <div class="w-8 h-8 rounded-full bg-brand-500 text-slate-950 font-bold mx-auto mb-3 flex items-center justify-center text-sm">7</div>
+            <h4 class="font-bold text-xs text-white">Sustainability & Scaling</h4>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= CONTACT & FOOTER ================= -->
+    <footer id="contact" class="bg-brand-dark text-white pt-16 pb-12 border-t border-brand-900">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="grid md:grid-cols-12 gap-12 pb-12 border-b border-brand-800">
+          
+          <div class="md:col-span-6 space-y-4">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-full bg-brand-500 text-slate-950 font-black flex items-center justify-center">W</div>
+              <span class="text-2xl font-extrabold tracking-tight">WISE Inc.</span>
+            </div>
+            <p class="text-slate-300 text-sm max-w-sm">
+              Wasto Integrated Solutions on Environment Inc. — Closing the loop on community waste through technology, women empowerment, and circular economics.
+            </p>
+          </div>
+
+          <div class="md:col-span-6 space-y-4">
+            <h3 class="text-lg font-bold text-white">Contact Us</h3>
+            <ul class="space-y-3 text-sm text-slate-300">
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-envelope text-brand-500"></i>
+                <span>wastointegrated.info@gmail.com</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-phone text-brand-500"></i>
+                <span>+63 2 8880 4351 / +63 917 516 9800</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-hashtag text-brand-500"></i>
+                <span>@WISEINC.PH</span>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        <div class="pt-8 text-center text-xs text-slate-400">
+          &copy; 2026 Wasto Integrated Solutions on Environment Inc. All Rights Reserved.
+        </div>
+
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ================= JAVASCRIPT CONTROLLERS ================= -->
+  <script>
+    // 1. Mobile Simulator Toggle Logic
+    let isMobileSim = false;
+    function toggleMobileView() {
+      const container = document.getElementById('appContainer');
+      const btnText = document.getElementById('simBtnText');
+      
+      isMobileSim = !isMobileSim;
+      
+      if(isMobileSim) {
+        container.classList.add('mobile-simulator');
+        btnText.innerText = "Switch to Desktop View";
+      } else {
+        container.classList.remove('mobile-simulator');
+        btnText.innerText = "Simulate Mobile View";
+      }
+    }
+
+    // 2. Mobile Nav Menu Toggle Logic
+    function toggleMobileMenu() {
+      const dropdown = document.getElementById('mobileDropdown');
+      dropdown.classList.toggle('hidden');
+    }
+
+    // 3. Dynamic Services Tab Switcher
+    const servicesData = [
+      {
+        title: "Community-Based Waste Recovery Systems",
+        desc: "Simple, scalable systems for localized collection, segregation, cleaning, and consolidation of recyclables—especially plastics—in barangays, schools, and communities with intentional inclusion of women operators.",
+        points: ["Barangay & School Systems", "Material Consolidation Hubs", "Inclusive Operations"]
+      },
+      {
+        title: "Circular Resource Centers",
+        desc: "Modular hubs serving as sorting stations, refill points, capacity training venues, and small-scale production hubs for recycled and upcycled items.",
+        points: ["Safe & Women-Friendly Spaces", "Refill & Sorting Stations", "Local Upcycling Production"]
+      },
+      {
+        title: "Livelihood Development & Women Empowerment",
+        desc: "Hands-on skills training in waste handling, upcycling, micro-enterprise management, and leadership. Platforms ensuring economic dignity and independence.",
+        points: ["Upcycling & Craft Training", "Micro-Enterprise Incubation", "Leadership in Local Governance"]
+      },
+      {
+        title: "Appropriate Technology & Infrastructure",
+        desc: "Deploying practical Filipino-made innovations including plastic shredders, hot press compactors, eco-material molders, and Rainfold rainwater systems.",
+        points: ["Filipino Engineered Machinery", "Rainfold Clean Water Access", "Upcycled Disaster Response Crates"]
+      },
+      {
+        title: "ESG, CSR & EPR Support Programs",
+        desc: "Custom framework design for corporate compliance and voluntary sustainability commitments aligned with measurable community impact.",
+        points: ["Extended Producer Responsibility (EPR)", "Audited Waste Diversion Data", "Measurable Gender Inclusion Impacts"]
+      }
+    ];
+
+    function switchServiceTab(index) {
+      const buttons = document.querySelectorAll('.service-tab-btn');
+      buttons.forEach((btn, idx) => {
+        if(idx === index) {
+          btn.className = "service-tab-btn active bg-brand-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all shadow";
+        } else {
+          btn.className = "service-tab-btn bg-slate-100 text-slate-600 hover:bg-slate-200 px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all";
+        }
+      });
+
+      const data = servicesData[index];
+      const container = document.getElementById('serviceTabContent');
+      
+      container.innerHTML = `
+        <div class="max-w-2xl space-y-4 animate-fade-in">
+          <h3 class="text-2xl font-bold text-slate-900">${data.title}</h3>
+          <p class="text-slate-600 text-sm sm:text-base leading-relaxed">${data.desc}</p>
+          <div class="pt-2 flex flex-wrap gap-2">
+            ${data.points.map(pt => `<span class="bg-brand-100 text-brand-800 text-xs font-semibold px-3 py-1 rounded-full"><i class="fa-solid fa-check text-brand-600 mr-1"></i>${pt}</span>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Initialize default service tab
+    switchServiceTab(0);
+
+    // 4. Interactive Eco Impact Calculator Logic
+    function updateCalculator() {
+      const plasticVal = parseInt(document.getElementById('plasticSlider').value);
+      const womenVal = parseInt(document.getElementById('womenSlider').value);
+
+      document.getElementById('plasticVal').innerText = plasticVal + " kg";
+      document.getElementById('womenVal').innerText = womenVal + " Persons";
+
+      // Formulas based on recycling conversions
+      const boards = Math.round(plasticVal / 5); // 5kg plastic = ~1 eco board
+      const co2Avoided = Math.round(plasticVal * 1.5); // ~1.5kg CO2 per kg plastic recycled
+      const revenue = Math.round(plasticVal * 30); // ~PHP 30 per kg value addition
+
+      document.getElementById('outputBoards').innerText = boards.toLocaleString() + " pcs";
+      document.getElementById('outputCO2').innerText = co2Avoided.toLocaleString() + " kg";
+      document.getElementById('outputRevenue').innerText = "₱" + revenue.toLocaleString();
+    }
+  </script>
+</body>
+</html>
