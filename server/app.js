@@ -2,7 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { rateLimit } from 'express-rate-limit';
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { config } from './config/env.js';
@@ -50,7 +50,7 @@ export function createApp({ contentStore = createContentStore(), adminStore, med
     standardHeaders: 'draft-8',
     legacyHeaders: false,
     /** Fall back to a shared bucket when request.ip is undefined (e.g. TRUST_PROXY misconfigured). */
-    keyGenerator: (request) => request.ip ?? 'unknown',
+    keyGenerator: (request) => request.ip != null ? ipKeyGenerator(request) : 'unknown',
     message: { error: { code: 'RATE_LIMITED', message: 'Too many requests. Try again shortly.' } },
   }));
   app.use('/api/admin', express.json({ limit: '256kb', strict: true }), adminRoutes);
