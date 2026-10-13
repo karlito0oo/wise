@@ -17,7 +17,8 @@ export function createContactMailer(settings = process.env) {
   if (ready) {
     const port = Number(settings.SMTP_PORT || 587);
     if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('SMTP_PORT must be a valid port.');
-    z.email().parse(settings.SMTP_FROM);
+    const sender = settings.SMTP_FROM.match(/^[^<>\r\n]*<([^<>\s]+)>$/)?.[1] ?? settings.SMTP_FROM;
+    if (!z.email().safeParse(sender).success) throw new Error('SMTP_FROM must be an email address or "Name <email@domain>".');
     z.email().parse(settings.CONTACT_TO);
     if (Boolean(settings.SMTP_USER) !== Boolean(settings.SMTP_PASSWORD)) throw new Error('Configure both SMTP_USER and SMTP_PASSWORD.');
     transport = nodemailer.createTransport({
