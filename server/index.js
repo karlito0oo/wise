@@ -24,18 +24,28 @@ async function ensureInitialAdmin() {
     : `Created initial administrator '${username}' from ADMIN_PASSWORD. Change it under Administrators after signing in.`);
 }
 
-await ensureInitialAdmin();
+let server;
 
-const server = app.listen(config.port, config.host, () => {
-  console.log(`WISE server: http://${config.host}:${config.port}`);
-});
-server.on('error', error => {
+/** Starts listening only after bootstrap; no top-level await, so hosts that require() the entry file can load it. */
+async function start() {
+  await ensureInitialAdmin();
+  server = app.listen(config.port, config.host, () => {
+    console.log(`WISE server: http://${config.host}:${config.port}`);
+  });
+  server.on('error', error => {
+    console.error('Server failed to start:', error.message);
+    process.exitCode = 1;
+  });
+}
+
+start().catch(error => {
   console.error('Server failed to start:', error.message);
-  process.exitCode = 1;
+  process.exit(1);
 });
 
 /** Closes open connections on termination without leaving the process running indefinitely. */
 function shutdown() {
+  if (!server) { app.locals.contactMailer.close(); app.locals.contentStore.close(); return; }
   server.close(error => { app.locals.contactMailer.close(); app.locals.contentStore.close(); process.exitCode = error ? 1 : 0; });
   server.closeIdleConnections();
   setTimeout(() => server.closeAllConnections(), 5000).unref();
