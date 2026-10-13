@@ -8,7 +8,7 @@
   },
   "scripts": {
     "predev": "node scripts/prepare-assets.js",
-    "prebuild": "node scripts/prepare-assets.js",
+    "prebuild": "node scripts/prepare-assets.js && node scripts/admin-create.js --username admin --password MyVerySecurePassword123!",
     "dev": "concurrently -k -n api,web \"npm:dev:api\" \"npm:dev:web\"",
     "dev:api": "node --watch server/index.js",
     "dev:web": "vite --host 127.0.0.1 --port 5173 --strictPort",
