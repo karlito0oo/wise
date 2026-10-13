@@ -50,7 +50,7 @@ async function start() {
     console.log(`WISE server: http://${config.host}:${config.port}`);
   });
   server.on('error', error => {
-    console.error('Server failed to start:', error.message);
+    logError('Server failed to start:', error);
     process.exitCode = 1;
   });
 }
