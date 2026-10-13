@@ -49,6 +49,8 @@ export function createApp({ contentStore = createContentStore(), adminStore, med
     limit: 120,
     standardHeaders: 'draft-8',
     legacyHeaders: false,
+    /** Fall back to a shared bucket when request.ip is undefined (e.g. TRUST_PROXY misconfigured). */
+    keyGenerator: (request) => request.ip ?? 'unknown',
     message: { error: { code: 'RATE_LIMITED', message: 'Too many requests. Try again shortly.' } },
   }));
   app.use('/api/admin', express.json({ limit: '256kb', strict: true }), adminRoutes);
