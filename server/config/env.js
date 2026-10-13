@@ -14,8 +14,14 @@ for (const origin of origins) {
   }
 }
 
+const trustProxy = Number(process.env.TRUST_PROXY || 0);
+if (!Number.isInteger(trustProxy) || trustProxy < 0 || trustProxy > 5) {
+  throw new Error('TRUST_PROXY must be the number of reverse proxies in front of the app (0-5).');
+}
+
 export const config = {
   port,
+  trustProxy,
   host: process.env.HOST || '127.0.0.1',
   corsOrigins: origins,
   production: process.env.NODE_ENV === 'production',

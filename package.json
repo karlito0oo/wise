@@ -15,7 +15,6 @@
     "build": "vite build",
     "start": "node server/index.js",
     "test": "node --test",
-    "admin:create": "node scripts/create-admin.js",
     "content:export": "node scripts/export-content.js",
     "check": "eslint src server shared tests scripts vite.config.js tailwind.config.js postcss.config.js"
   },

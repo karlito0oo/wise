@@ -48,6 +48,14 @@ test('authenticated uploads validate bytes, produce WebP, and publish multiple e
   const published = (await request(app).get('/api/content')).body;
   assert.equal(published.events.items[0].images.length, 2);
   assert.equal(published.site.logo.src, uploaded.body.images[0].src);
+
+  const withPhoto = (await agent.get('/api/admin/content')).body;
+  withPhoto.content.leadership.members[0].photo = { src: uploaded.body.images[1].src, alt: 'Team member portrait' };
+  await agent.put('/api/admin/content').set('Origin', origin).set('X-CSRF-Token', csrf).send({ content: withPhoto.content, version: withPhoto.version }).expect(200);
+  assert.equal((await request(app).get('/api/content')).body.leadership.members[0].photo.src, uploaded.body.images[1].src);
+  const missingPhoto = (await agent.get('/api/admin/content')).body;
+  missingPhoto.content.leadership.members[0].photo = { src: '/uploads/00000000-0000-0000-0000-000000000000.webp', alt: 'Missing' };
+  await agent.put('/api/admin/content').set('Origin', origin).set('X-CSRF-Token', csrf).send({ content: missingPhoto.content, version: missingPhoto.version }).expect(400);
 });
 
 test('contact delivery validates origin and input, traps spam, and handles failures honestly', async t => {

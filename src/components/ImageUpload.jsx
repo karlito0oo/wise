@@ -4,7 +4,7 @@ import { adminContent as text } from '../data/adminContent.js';
 import { Icon } from './ui.jsx';
 
 /** Uploads protected raster images without exposing filesystem paths or session cookies. */
-export function ImageUpload({ id, multiple = false, csrfToken, disabled, onUploaded, onBusy, onError }) {
+export function ImageUpload({ id, multiple = false, label, csrfToken, disabled, onUploaded, onBusy, onError }) {
   /** Validates inexpensive file properties before sending bytes for server-side decoding. */
   async function upload(event) {
     const files = [...event.target.files];
@@ -19,7 +19,7 @@ export function ImageUpload({ id, multiple = false, csrfToken, disabled, onUploa
     finally { onBusy(false); }
   }
   return <div className="admin-image-upload">
-    <label htmlFor={id}><Icon name="fa-upload" />{multiple ? text.uploadImages : text.uploadLogo}</label>
+    <label htmlFor={id}><Icon name="fa-upload" />{label || (multiple ? text.uploadImages : text.uploadLogo)}</label>
     <input id={id} type="file" accept="image/jpeg,image/png,image/webp" multiple={multiple} disabled={disabled} onChange={upload} />
     <p>{text.uploadLimit}</p>
   </div>;

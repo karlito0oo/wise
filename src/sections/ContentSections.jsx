@@ -24,12 +24,14 @@ export function EcosystemSection({ section }) {
   </div></section>;
 }
 
-/** Renders the original initials-based team portraits and biographies. */
+/** Renders uploaded team portraits, falling back to initials, with biographies. */
 export function LeadershipSection({ section }) {
   return <section id={section.id} className="py-20 bg-white"><div className="section-container">
     <SectionHeading section={section} />
     <div className="team-grid grid gap-6 mt-16">{section.members.map(member => <article key={member.id} className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center hover:shadow-xl transition-all group">
-      <div className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center font-bold text-xl mb-4 group-hover:scale-110 transition-transform shadow ${tones[member.tone].avatar}`} aria-hidden="true">{member.initials}</div>
+      {member.photo
+        ? <img src={member.photo.src} alt={member.photo.alt} width="80" height="80" loading="lazy" className="w-20 h-20 mx-auto rounded-full object-cover mb-4 group-hover:scale-110 transition-transform shadow" />
+        : <div className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center font-bold text-xl mb-4 group-hover:scale-110 transition-transform shadow ${tones[member.tone].avatar}`} aria-hidden="true">{member.initials}</div>}
       <h3 className="font-bold text-slate-900 text-base">{member.name}</h3><p className={`text-xs font-semibold mt-1 ${tones[member.tone].text}`}>{member.role}</p><p className="text-xs text-slate-600 mt-3 leading-relaxed">{member.biography}</p>
     </article>)}</div>
   </div></section>;

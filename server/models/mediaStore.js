@@ -3,10 +3,10 @@ import sharp from 'sharp';
 import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile, unlink } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { resolve, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { uploadDirectory } from '../config/storage.js';
 
-export const uploadDirectory = resolve(process.env.UPLOAD_DIR || fileURLToPath(new URL('../data/uploads/', import.meta.url)));
+export { uploadDirectory };
 
 /** Stores decoded, metadata-stripped raster images with generated immutable names. */
 export function createMediaStore(directory = uploadDirectory) {
@@ -42,7 +42,7 @@ export function createMediaStore(directory = uploadDirectory) {
     },
     /** Ensures published upload references exist; only generated filenames are resolved. */
     validReferences(content) {
-      const images = [content.site.logo, ...content.events.items.flatMap(event => event.images)];
+      const images = [content.site.logo, ...content.events.items.flatMap(event => event.images), ...content.leadership.members.flatMap(member => member.photo ? [member.photo] : [])];
       return images.every(image => image.src === '/assets/wise-logo.png' ||
         (/^\/uploads\/[a-f0-9-]{36}\.webp$/.test(image.src) && existsSync(join(directory, image.src.slice('/uploads/'.length)))));
     },

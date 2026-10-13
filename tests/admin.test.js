@@ -55,6 +55,50 @@ test('publishing validates content, checks CSRF and versions, and refreshes publ
   await agent.get('/api/admin/content').expect(401);
 });
 
+test('initial administrator is created only when no administrators exist', async t => {
+  const store = createContentStore({ databasePath: ':memory:', seed: mockCmsData });
+  t.after(() => store.close());
+  const app = createApp({ contentStore: store });
+  const password = randomBytes(24).toString('hex');
+  assert.equal(await app.locals.adminStore.ensureInitialAdmin('first-admin', password), true);
+  assert.equal(await app.locals.adminStore.ensureInitialAdmin('second-admin', password), false);
+  assert.deepEqual(app.locals.adminStore.list(), ['first-admin']);
+  await request(app).post('/api/admin/login').set('Origin', origin).send({ username: 'first-admin', password }).expect(200);
+});
+
+test('administrators can be listed, created, updated, and deleted with safeguards', async t => {
+  const { app, agent, csrf } = await fixture(t);
+  const send = (method, path) => agent[method](`/api/admin${path}`).set('Origin', origin).set('X-CSRF-Token', csrf);
+  await request(app).get('/api/admin/admins').expect(401);
+  await agent.post('/api/admin/admins').set('Origin', origin).send({ username: 'editor', password: 'x'.repeat(12) }).expect(403);
+  await send('post', '/admins').send({ username: 'editor', password: 'short' }).expect(400);
+  await send('post', '/admins').send({ username: 'bad name!', password: 'x'.repeat(12) }).expect(400);
+  const password = randomBytes(24).toString('hex');
+  await send('post', '/admins').send({ username: 'editor', password }).expect(201);
+  await send('post', '/admins').send({ username: 'editor', password }).expect(409);
+  assert.deepEqual((await agent.get('/api/admin/admins').expect(200)).body, { admins: ['editor', 'test-admin'], current: 'test-admin' });
+  assert.ok(!JSON.stringify((await agent.get('/api/admin/admins')).body).includes('scrypt'));
+
+  const editor = request.agent(app);
+  await editor.post('/api/admin/login').set('Origin', origin).send({ username: 'editor', password }).expect(200);
+  const nextPassword = randomBytes(24).toString('hex');
+  await send('put', '/admins/editor').send({ username: 'content-editor', password: nextPassword }).expect(200);
+  await editor.get('/api/admin/session').expect(401);
+  await request(app).post('/api/admin/login').set('Origin', origin).send({ username: 'content-editor', password: nextPassword }).expect(200);
+  await send('put', '/admins/missing').send({ password: nextPassword }).expect(404);
+  await send('put', '/admins/content-editor').send({ username: 'test-admin' }).expect(409);
+  await send('put', '/admins/content-editor').send({}).expect(400);
+
+  const renamed = await send('put', '/admins/test-admin').send({ username: 'lead-admin', password: nextPassword }).expect(200);
+  assert.equal(renamed.body.current, 'lead-admin');
+  assert.equal((await agent.get('/api/admin/session').expect(200)).body.username, 'lead-admin');
+  await send('delete', '/admins/lead-admin').expect(400);
+  await send('delete', '/admins/content-editor').expect(204);
+  await send('delete', '/admins/content-editor').expect(404);
+  assert.deepEqual(app.locals.adminStore.list(), ['lead-admin']);
+  assert.throws(() => app.locals.adminStore.remove('lead-admin'), error => error.code === 'LAST_ADMIN');
+});
+
 test('expired sessions and inconsistent calculator values are rejected', async t => {
   const { agent, csrf, store } = await fixture(t);
   const invalid = structuredClone(mockCmsData);

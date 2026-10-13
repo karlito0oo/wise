@@ -19,6 +19,8 @@ import { createContactRoutes } from './routes/contactRoutes.js';
 export function createApp({ contentStore = createContentStore(), adminStore, mediaStore = createMediaStore(), contactMailer = createContactMailer(), logger = console } = {}) {
   const app = express();
   app.disable('x-powered-by');
+  /** Behind a host proxy, use the forwarded client IP/protocol for rate limits and origin checks. */
+  app.set('trust proxy', config.trustProxy);
   app.locals.contentStore = contentStore;
   app.locals.adminStore = adminStore || (contentStore.database ? createAdminStore(contentStore.database) : null);
   app.locals.logger = logger;
@@ -38,7 +40,7 @@ export function createApp({ contentStore = createContentStore(), adminStore, med
       error.status = 403;
       callback(error);
     },
-    methods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT'],
+    methods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'DELETE'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'X-CSRF-Token'],
   })(request, response, next));

@@ -29,7 +29,19 @@ export function CollectionEditor({ definition, sectionId, value, original, disab
         <button type="button" title={text.moveDown} aria-label={`${text.moveDown}: ${item.name || item.title}`} disabled={disabled || index === items.length - 1} onClick={() => replace(reorder(items, index, 1))}><Icon name="fa-arrow-down" /></button>
         <button type="button" title={text.remove} aria-label={`${text.remove}: ${item.name || item.title}`} disabled={disabled} onClick={() => remove(index)}><Icon name="fa-trash" /></button>
       </div></div>
-      <ContentFields value={item} original={original?.[definition.key]?.find(record => record.id === item.id) || item} sectionId={`${sectionId}-${item.id}`} omit={sectionId === 'services' ? ['points'] : []} onChange={(path, changed) => onChange([definition.key, index, ...path], changed)} disabled={disabled} />
+      <ContentFields value={item} original={original?.[definition.key]?.find(record => record.id === item.id) || item} sectionId={`${sectionId}-${item.id}`} omit={sectionId === 'services' ? ['points'] : sectionId === 'leadership' ? ['photo'] : []} onChange={(path, changed) => onChange([definition.key, index, ...path], changed)} disabled={disabled} />
+      {sectionId === 'leadership' && <div className="admin-photo-editor">
+        {item.photo ? <img src={item.photo.src} alt={item.photo.alt} width="96" height="96" /> : <span className="admin-photo-placeholder" aria-hidden="true">{item.initials}</span>}
+        <div>
+          <ImageUpload id={`photo-${item.id}`} label={item.photo ? text.replacePhoto : text.uploadPhoto} csrfToken={csrfToken} disabled={disabled} onBusy={onBusy} onError={onError} onUploaded={images => onChange([definition.key, index, 'photo'], { src: images[0].src, alt: item.name.slice(0, 250) })} />
+          {item.photo && <>
+            <label htmlFor={`photo-alt-${item.id}`}>{text.imageAlt}</label>
+            <input id={`photo-alt-${item.id}`} value={item.photo.alt} required maxLength={250} disabled={disabled} onChange={event => onChange([definition.key, index, 'photo', 'alt'], event.target.value)} />
+            <button type="button" disabled={disabled} onClick={() => onChange([definition.key, index], Object.fromEntries(Object.entries(item).filter(([key]) => key !== 'photo')))}><Icon name="fa-trash" />{text.removePhoto}</button>
+          </>}
+          <p>{text.photoFallback}</p>
+        </div>
+      </div>}
       {sectionId === 'services' && <div className="admin-benefits">{item.points.map((point, position) => <div key={position} className="admin-benefit"><label htmlFor={`benefit-${item.id}-${position}`}>{text.point} {position + 1}</label><input id={`benefit-${item.id}-${position}`} value={point} required maxLength={10000} disabled={disabled} onChange={event => onChange([definition.key, index, 'points', position], event.target.value)} /><button type="button" title={text.remove} aria-label={`${text.remove}: ${text.point} ${position + 1}`} disabled={disabled} onClick={() => onChange([definition.key, index, 'points'], item.points.filter((entry, number) => number !== position))}><Icon name="fa-trash" /></button></div>)}<button type="button" disabled={disabled || item.points.length >= 50} onClick={() => onChange([definition.key, index, 'points'], [...item.points, text.newPoint])}><Icon name="fa-plus" />{text.addPoint}</button></div>}
       {sectionId === 'events' && <>
         <ImageUpload id={`images-${item.id}`} multiple csrfToken={csrfToken} disabled={disabled || item.images.length >= 40} onBusy={onBusy} onError={onError} onUploaded={images => {

@@ -12,7 +12,7 @@ export const imageSchema = z.strictObject({ id: recordId, src: z.string().regex(
 const records = {
   'ecosystem.partners': z.strictObject({ id: recordId, name: text, role: text, description: text, mark: text.max(20).optional(), icon: z.enum(['fa-mountain', 'fa-leaf', 'fa-recycle']).optional(), tone: z.enum(['brand', 'emerald', 'slate']) }),
   'services.items': z.strictObject({ id: recordId, tabLabel: text.max(160), title: text, description: text, points: z.array(text).max(50) }),
-  'leadership.members': z.strictObject({ id: recordId, name: text, initials: text.max(10), role: text, biography: text, tone }),
+  'leadership.members': z.strictObject({ id: recordId, name: text, initials: text.max(10), role: text, biography: text, tone, photo: imageSchema.omit({ id: true }).optional() }),
   'implementation.steps': z.strictObject({ id: recordId, title: text }),
   'events.items': z.strictObject({ id: recordId, title: text, description: text, date: z.iso.date(), images: z.array(imageSchema).max(40).refine(uniqueRecords) }),
 };
@@ -53,5 +53,10 @@ export const contentSchema = schemaFor(template).refine(content => content.calcu
   Number.isInteger((input.defaultValue - input.min) / input.step)
 ), 'Calculator defaults, ranges, and steps must be consistent.')
   .refine(content => !content.services.items.length || content.services.items.some(item => item.id === content.services.defaultTabId), 'The selected default service must exist.');
-export const loginSchema = z.strictObject({ username: z.string().regex(/^[a-zA-Z0-9._-]{3,64}$/), password: z.string().min(1).max(256) });
+export const usernameSchema = z.string().regex(/^[a-zA-Z0-9._-]{3,64}$/);
+export const adminPasswordSchema = z.string().min(12).max(256);
+export const loginSchema = z.strictObject({ username: usernameSchema, password: z.string().min(1).max(256) });
+export const adminCreateSchema = z.strictObject({ username: usernameSchema, password: adminPasswordSchema });
+export const adminUpdateSchema = z.strictObject({ username: usernameSchema.optional(), password: adminPasswordSchema.optional() })
+  .refine(update => update.username || update.password, 'Provide a new username or password.');
 export const updateSchema = z.strictObject({ content: contentSchema, version: z.number().int().positive() });

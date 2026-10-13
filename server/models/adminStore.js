@@ -23,9 +23,49 @@ export async function verifyPassword(password, storedHash) {
 /** Hashes opaque tokens before SQLite storage so database reads do not expose cookies. */
 export function tokenHash(token) { return createHash('sha256').update(token).digest('hex'); }
 
+/** Builds an error the controllers translate into a safe JSON response. */
+function failure(status, code, message) {
+  return Object.assign(new Error(message), { status, code });
+}
+
 /** Stores credentials and revocable, expiring sessions beside site content. */
 export function createAdminStore(database) {
+  const find = database.prepare('SELECT username FROM admins WHERE username = ?');
   return {
+    /** Creates the first administrator only when the database has none; returns whether one was created. */
+    async ensureInitialAdmin(username, password) {
+      if (database.prepare('SELECT COUNT(*) AS total FROM admins').get().total) return false;
+      const hash = await hashPassword(password);
+      return database.prepare('INSERT INTO admins (username, password_hash) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM admins)').run(username, hash).changes > 0;
+    },
+    /** Lists account names only; password hashes never leave the store. */
+    list() { return database.prepare('SELECT username FROM admins ORDER BY username COLLATE NOCASE').all().map(row => row.username); },
+    /** Adds a new administrator, refusing to overwrite an existing account. */
+    async create(username, password) {
+      const hash = await hashPassword(password);
+      const result = database.prepare('INSERT INTO admins (username, password_hash) VALUES (?, ?) ON CONFLICT(username) DO NOTHING').run(username, hash);
+      if (!result.changes) throw failure(409, 'ADMIN_EXISTS', 'An administrator with that username already exists.');
+    },
+    /** Renames and/or re-passwords an account; a password change revokes its other sessions. */
+    async update(username, { username: nextUsername = username, password }, keepToken) {
+      const hash = password ? await hashPassword(password) : null;
+      database.transaction(() => {
+        if (!find.get(username)) throw failure(404, 'ADMIN_NOT_FOUND', 'Administrator not found.');
+        if (nextUsername !== username && find.get(nextUsername)) throw failure(409, 'ADMIN_EXISTS', 'An administrator with that username already exists.');
+        database.pragma('defer_foreign_keys = ON');
+        database.prepare('UPDATE admins SET username = ?, password_hash = COALESCE(?, password_hash) WHERE username = ?').run(nextUsername, hash, username);
+        database.prepare('UPDATE sessions SET username = ? WHERE username = ?').run(nextUsername, username);
+        if (hash) database.prepare('DELETE FROM sessions WHERE username = ? AND token_hash != ?').run(nextUsername, keepToken ? tokenHash(keepToken) : '');
+      })();
+    },
+    /** Deletes an account and its sessions, never leaving the site without an administrator. */
+    remove(username) {
+      database.transaction(() => {
+        if (!find.get(username)) throw failure(404, 'ADMIN_NOT_FOUND', 'Administrator not found.');
+        if (database.prepare('SELECT COUNT(*) AS total FROM admins').get().total <= 1) throw failure(400, 'LAST_ADMIN', 'The last administrator cannot be deleted.');
+        database.prepare('DELETE FROM admins WHERE username = ?').run(username);
+      })();
+    },
     /** Provisions or rotates a local administrator and revokes previous sessions. */
     async provision(username, password) {
       const hash = await hashPassword(password);

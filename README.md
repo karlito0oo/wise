@@ -22,43 +22,60 @@ Do not overwrite an existing `.env`; edit its values instead.
 
 ## Admin Setup
 
-SQLite requires no separately installed database server. The API creates
-`server/data/wise.sqlite` and seeds it from `server/data/content.json` only when
-the content table is empty. Existing edits survive restarts.
+SQLite is the database in both development and production; no separate database
+server is needed. The API creates `DATA_DIR/wise.sqlite` (default
+`server/data/wise.sqlite`) and seeds it from `server/data/content.json` only when
+the content table is empty. Existing edits survive restarts and redeploys as long
+as `DATA_DIR` is persistent (see [Persistent Data](#persistent-data)).
 
-Create an administrator in your own interactive terminal:
+When the database has no administrators, the server creates one at startup from
+`ADMIN_USERNAME` (default `admin`) and `ADMIN_PASSWORD`. If `ADMIN_PASSWORD` is
+empty, a random password is generated and printed once in the server log. This
+never runs again once any administrator exists, so changing these variables later
+does not alter existing accounts.
 
-```powershell
-npm.cmd run admin:create -- --username admin
-```
+Open http://127.0.0.1:5173/admin, sign in, choose a section, edit fields, and
+select **Publish Changes**. Refresh the public website to see the publication; no
+server restart is needed. All edited sections publish together. **Discard
+Changes** restores the last saved version. If another editor publishes first,
+reload before saving; stale edits cannot overwrite theirs.
 
-Enter a unique password/passphrase of at least 12 characters at the masked
-prompts. No default account is provided, and passwords are not stored in `.env`
-or command arguments. Open http://127.0.0.1:5173/admin, sign in, choose a section,
-edit fields, and select **Publish Changes**. Refresh the public website to see
-the publication; no server restart is needed. All edited sections publish
-together. **Discard Changes** restores the last saved version. If another editor
-publishes first, reload before saving; stale edits cannot overwrite theirs.
+The **Administrators** page lists accounts and lets any signed-in administrator
+add accounts, rename them, change passwords (12+ characters; this signs out that
+account's other sessions), and delete other accounts. You cannot delete the
+account you are signed in with, and the last administrator cannot be deleted.
 
-To reset a forgotten password and revoke that account's sessions:
-
-```powershell
-npm.cmd run admin:create -- --username admin --reset
-```
+Leadership team members can have an uploaded photo (JPEG, PNG, or WebP; stored as
+WebP). Members without a photo show their initials.
 
 Sessions expire after two hours. Cookies are HTTP-only and SameSite=Strict;
 production cookies additionally require HTTPS. Login has an origin check and
 rate limit; publications require a valid session, CSRF token, and version.
-The editor updates existing text, links, and calculator settings. Adding or
-removing sections/records, changing structural IDs/icons, and uploading media
-are outside this simple editor and require a deliberate schema/UI extension.
 
 Use the same host for frontend and API (prefer `127.0.0.1` consistently). Add any
 alternate Vite port to `CORS_ORIGINS`. Production reverse-proxy deployments must
 include the exact external HTTPS origin in that setting. Do not enable wildcard
 origins or disable CSRF checks.
 
-## Backup and Migration
+## Persistent Data
+
+The SQLite database and uploaded images are runtime data, not source code. They
+are gitignored, so a deploy that clones the repository or rebuilds the app
+directory starts with an empty `server/data/` and a fresh database. To keep data
+across deploys:
+
+1. Attach a persistent disk/volume on your host (for example, a Render disk,
+   Railway volume, Fly volume, Docker volume, or a directory on your VPS outside
+   the release folder).
+2. Set `DATA_DIR` to its mount path, for example `DATA_DIR=/var/data/wise`.
+3. Redeploy. The database and `uploads/` are created there on first start and
+   reused on every later deploy.
+
+In production the server logs a warning if the database or uploads are inside the
+application directory. Back up the database and `uploads/` together; content
+references uploaded files by name.
+
+## Backup
 
 Export the current public content, version, and publication date:
 
@@ -73,10 +90,6 @@ copying the database, or use SQLite's online backup API. Do not copy an actively
 written WAL database as a single file. Protect database backups with restricted
 filesystem permissions and encryption. The database and backups are gitignored.
 
-See [docs/mysql-migration.md](docs/mysql-migration.md) for the MySQL schema,
-adapter changes, import process, verification, and rollback. MySQL is not needed
-or installed for the current application.
-
 ## Verify and Deploy
 
 ```powershell
@@ -89,7 +102,8 @@ npm.cmd start
 
 After building, Express serves the frontend and API at http://127.0.0.1:3001.
 For deployment, place it behind an HTTPS reverse proxy and configure `HOST`,
-`PORT`, and exact `CORS_ORIGINS`. Review proxy trust and distributed rate-limit
+`PORT`, exact `CORS_ORIGINS`, a persistent `DATA_DIR`, and optionally
+`ADMIN_PASSWORD` for the first deploy. Review proxy trust and distributed rate-limit
 storage before deploying multiple instances. Do not expose development servers.
 
 ## Content and Structure
@@ -150,10 +164,7 @@ publication, version conflicts, and logout. Editor lint and production builds
 pass. Browser-only fixtures verified editor sign-in/publishing/discard/logout,
 numeric controls, and responsive widths 320, 390, 800, and 1440 with no horizontal
 overflow or unlabelled fields; desktop/mobile screenshots were inspected.
-The real API verified anonymous rejection and production admin serving. No real
-administrator was created, and the masked-password provisioning command awaits
-your local input. MySQL instructions are a migration guide, not a tested MySQL
-implementation; no MySQL server is installed or required here.
+The real API verified anonymous rejection and production admin serving.
 
 The runtime-only npm audit reports zero vulnerabilities. The complete audit
 reports seven development-only advisories (five high and two moderate) in
@@ -178,4 +189,6 @@ organization-specific compliance has not been certified.
 - [x] 4.2 Add authentication, CSRF protection, validation, and session expiry
 - [x] 4.3 Build a responsive section-based admin editor
 - [x] 4.4 Verify admin browser, lint, build, API security, and persistence
-- [x] 4.5 Document admin setup, backups, and MySQL migration
+- [x] 4.5 Document admin setup and backups
+- [x] 5.1 Persistent `DATA_DIR`, startup admin bootstrap, and in-app administrator management
+- [x] 5.2 Leadership photo uploads
